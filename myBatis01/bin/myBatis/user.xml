@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- id:sql id,sql语句的唯一标识
+	patameterType:入参的数据类型
+	resultType:返回结果的数据类型
+	#{}：是一个占位符，相当于JDBC的 "?"
+	${}：字符串拼接指令，如果入参为普通数据类型，{}内部只能写value；
+					如果入参为对象数据类型，{}内部写对象的属性。
+ -->
+ 
+  <!-- 动态代理规则：不需要写dao接口的实现类，
+ 	1、namespace必须是接口的全路径名
+ 	2、接口的方法名必须与sql id完全一致
+ 	3、接口的入参与parameterType 类型一致
+ 	4、接口的返回值与resultType 类型一致
+  -->
+<mapper namespace="user">
+
+	<!-- 查询用户 -->
+	<select id="getUserById" parameterType="int" resultType="zh.pojo.User">
+		SELECT 	id, 
+		username, 
+		birthday, 
+		sex, 
+		address
+		FROM 
+		`user`
+		WHERE id =#{id2}
+		;
+	</select>
+	
+	<!-- resultType:如果返回结果为集合，只需设置为集合元素的数据类型 -->
+	<select id="getUserByName" parameterType="string" resultType="zh.pojo.User">
+		SELECT 	id, 
+		username, 
+		birthday, 
+		sex, 
+		address
+		FROM 
+		`user`
+		<!-- WHERE userName like '%张%'  -->
+		WHERE userName like '%${value}%' 
+		;
+	</select>
+	<!-- useGeneratedKeys="true":使用自增， keyProperty与之配套使用，这里是user的主键
+		作用与selectKey一样
+	-->
+	
+		<!-- 插入用户 -->
+	<insert id="insertUser" parameterType="zh.pojo.User" useGeneratedKeys="true" keyProperty="id" >
+	<!-- 
+		selectKey:主键返回
+		keyProperty：user中的主键属性
+		resultType：主键数据类型
+		order：指定selectKey何时执行
+	 -->
+		<!--
+		<selectKey keyProperty="id" resultType="int" order="AFTER"> 
+			SELECT LAST_INSERT_ID();
+		</selectKey> 
+		 -->
+		INSERT INTO `user` 
+	(
+	username, 
+	birthday, 
+	sex, 
+	address
+	)
+	VALUES
+	( 
+	#{username}, 
+	#{birthday}, 
+	#{sex}, 
+	#{address}
+	);
+	</insert>
+	
+	
+		<!-- 更新用户 -->
+	<update id="updateUser" parameterType="zh.pojo.User">
+		UPDATE `user`
+		SET
+		username = #{username} 
+		WHERE
+		id = #{id} ;
+	</update>
+	
+	
+	<!-- 删除用户 -->
+	<delete id="deleteUser" parameterType="int">
+	
+	<!-- 如果入参是普通类型，#{}内部可以任意写 -->
+		DELETE FROM `user` 
+		WHERE
+		id = #{id} ;
+	</delete>
+</mapper>
+
